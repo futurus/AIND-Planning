@@ -60,7 +60,20 @@ class AirCargoProblem(Problem):
             :return: list of Action objects
             """
             loads = []
-            # TODO create all load ground actions from the domain Load action
+            for cargo in self.cargos:
+                for plane in self.planes:
+                    for airport in self.airports:
+                        precond_pos = [expr("At({}, {})".format(cargo, airport)),
+                                       expr("At({}, {})".format(plane, airport)),
+                                       ]
+                        precond_neg = []
+                        effect_add = [expr("In({}, {})".format(cargo, plane))]
+                        effect_rem = [expr("At({}, {})".format(cargo, airport)),]
+                        load = Action(expr("Load({}, {}, {})".format(cargo, plane, airport)),
+                                        [precond_pos, precond_neg],
+                                        [effect_add, effect_rem])
+                        loads.append(load)
+        
             return loads
 
         def unload_actions():
@@ -69,7 +82,20 @@ class AirCargoProblem(Problem):
             :return: list of Action objects
             """
             unloads = []
-            # TODO create all Unload ground actions from the domain Unload action
+            for cargo in self.cargos:
+                for plane in self.planes:
+                    for airport in self.airports:
+                        precond_pos = [expr("At({}, {})".format(plane, airport)),
+                                       expr("In({}, {})".format(cargo, plane)),
+                                       ]
+                        precond_neg = []
+                        effect_add = [expr("At({}, {})".format(cargo, airport)),]
+                        effect_rem = [expr("In({}, {})".format(cargo, plane)),]
+                        unload = Action(expr("Unload({}, {}, {})".format(cargo, plane, airport)),
+                                        [precond_pos, precond_neg],
+                                        [effect_add, effect_rem])
+                        unloads.append(unload)
+
             return unloads
 
         def fly_actions():
@@ -103,8 +129,14 @@ class AirCargoProblem(Problem):
             e.g. 'FTTTFF'
         :return: list of Action objects
         """
-        # TODO implement
+
         possible_actions = []
+        kb = PropKB()
+        kb.tell(decode_state(state, self.state_map).sentence())
+
+        for action in self.get_actions():
+            if action.check_precond(kb, action.args):
+                possible_actions.append(action)
         return possible_actions
 
     def result(self, state: str, action: Action):
@@ -163,12 +195,12 @@ class AirCargoProblem(Problem):
 
 
 def air_cargo_p1() -> AirCargoProblem:
-#    Init(At(C1, SFO) ∧ At(C2, JFK) 
-#	    ∧ At(P1, SFO) ∧ At(P2, JFK) 
+#   Init(At(C1, SFO) ∧ At(C2, JFK) 
+#       ∧ At(P1, SFO) ∧ At(P2, JFK) 
 #	    ∧ Cargo(C1) ∧ Cargo(C2) 
 #       ∧ Plane(P1) ∧ Plane(P2)
 #       ∧ Airport(JFK) ∧ Airport(SFO))
-#    Goal(At(C1, JFK) ∧ At(C2, SFO))
+#   Goal(At(C1, JFK) ∧ At(C2, SFO))
     cargos = ['C1', 'C2']
     planes = ['P1', 'P2']
     airports = ['JFK', 'SFO']
@@ -194,12 +226,12 @@ def air_cargo_p1() -> AirCargoProblem:
 
 
 def air_cargo_p2() -> AirCargoProblem:
- #   Init(At(C1, SFO) ∧ At(C2, JFK) ∧ At(C3, ATL) 
- #       ∧ At(P1, SFO) ∧ At(P2, JFK) ∧ At(P3, ATL) 
- #       ∧ Cargo(C1) ∧ Cargo(C2) ∧ Cargo(C3)
- #       ∧ Plane(P1) ∧ Plane(P2) ∧ Plane(P3)
- #       ∧ Airport(JFK) ∧ Airport(SFO) ∧ Airport(ATL))
- #   Goal(At(C1, JFK) ∧ At(C2, SFO) ∧ At(C3, SFO))
+#   Init(At(C1, SFO) ∧ At(C2, JFK) ∧ At(C3, ATL) 
+#       ∧ At(P1, SFO) ∧ At(P2, JFK) ∧ At(P3, ATL) 
+#       ∧ Cargo(C1) ∧ Cargo(C2) ∧ Cargo(C3)
+#       ∧ Plane(P1) ∧ Plane(P2) ∧ Plane(P3)
+#       ∧ Airport(JFK) ∧ Airport(SFO) ∧ Airport(ATL))
+#   Goal(At(C1, JFK) ∧ At(C2, SFO) ∧ At(C3, SFO))
     cargos = ['C1', 'C2', 'C3']
     planes = ['P1', 'P2', 'P3']
     airports = ['JFK', 'SFO', 'ATL']
@@ -241,12 +273,12 @@ def air_cargo_p2() -> AirCargoProblem:
 
 
 def air_cargo_p3() -> AirCargoProblem:
- #   Init(At(C1, SFO) ∧ At(C2, JFK) ∧ At(C3, ATL) ∧ At(C4, ORD) 
- #       ∧ At(P1, SFO) ∧ At(P2, JFK) 
- #       ∧ Cargo(C1) ∧ Cargo(C2) ∧ Cargo(C3) ∧ Cargo(C4)
- #       ∧ Plane(P1) ∧ Plane(P2)
- #       ∧ Airport(JFK) ∧ Airport(SFO) ∧ Airport(ATL) ∧ Airport(ORD))
- #   Goal(At(C1, JFK) ∧ At(C3, JFK) ∧ At(C2, SFO) ∧ At(C4, SFO))
+#   Init(At(C1, SFO) ∧ At(C2, JFK) ∧ At(C3, ATL) ∧ At(C4, ORD) 
+#       ∧ At(P1, SFO) ∧ At(P2, JFK) 
+#       ∧ Cargo(C1) ∧ Cargo(C2) ∧ Cargo(C3) ∧ Cargo(C4)
+#       ∧ Plane(P1) ∧ Plane(P2)
+#       ∧ Airport(JFK) ∧ Airport(SFO) ∧ Airport(ATL) ∧ Airport(ORD))
+#   Goal(At(C1, JFK) ∧ At(C3, JFK) ∧ At(C2, SFO) ∧ At(C4, SFO))
     cargos = ['C1', 'C2', 'C3', 'C4']
     planes = ['P1', 'P2']
     airports = ['JFK', 'SFO', 'ATL', 'ORD']
