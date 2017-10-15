@@ -148,9 +148,19 @@ class AirCargoProblem(Problem):
         :param action: Action applied
         :return: resulting state after action
         """
-        # TODO implement
-        new_state = FluentState([], [])
-        return encode_state(new_state, self.state_map)
+        kb = PropKB()
+        kb.tell(decode_state(state, self.state_map).sentence())
+        action.act(kb, action.args)
+        pos = []
+        neg = []
+
+        for clause in kb.clauses:
+            if clause.op == '~':
+                neg.append(clause)
+            else:
+                pos.append(clause)
+        
+        return encode_state(FluentState(pos, neg), self.state_map)
 
     def goal_test(self, state: str) -> bool:
         """ Test the state to see if goal is reached
@@ -310,7 +320,11 @@ def air_cargo_p3() -> AirCargoProblem:
            expr('In(C4, P1)'),
            expr('In(C4, P2)'),
            expr('At(P1, JFK)'),
+           expr('At(P1, ATL)'),
+           expr('At(P1, ORD)'),
            expr('At(P2, SFO)'),
+           expr('At(P2, ATL)'),
+           expr('At(P2, ORD)'),
            ]
     init = FluentState(pos, neg)
     goal = [expr('At(C1, JFK)'),
