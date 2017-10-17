@@ -200,8 +200,8 @@ class AirCargoProblem(Problem):
         executed.
         """
         # TODO implement (see Russell-Norvig Ed-3 10.2.3  or Russell-Norvig Ed-2 11.2)
-        count = 0
-        return count
+        # count = 0
+        return len(self.goal)
 
 
 def air_cargo_p1() -> AirCargoProblem:
