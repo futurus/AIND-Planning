@@ -200,8 +200,31 @@ class AirCargoProblem(Problem):
         executed.
         """
         # TODO implement (see Russell-Norvig Ed-3 10.2.3  or Russell-Norvig Ed-2 11.2)
-        # count = 0
-        return len(self.goal)
+        count = 0
+        kb = PropKB()
+        kb.tell(decode_state(node.state, self.state_map).pos_sentence())
+
+        # set conversion for convenience
+        kb_set = set(kb.clauses)
+        goal_set = set(self.goal)
+
+        # look at each action
+        for action in self.actions_list:
+            # is there any effect (resulting from the action) that satisfies goals but not currently in kb?
+            todo = set(action.effect_add).intersection(goal_set) - kb_set
+            
+            if todo:
+                # update kb to include such effect
+                kb_set.update(todo)
+                # count it
+                count += len(todo)
+            
+                ### Possible time saving?
+                # stop when goal is satisfied
+                # if kb_set.issuperset(goal_set):
+                #     break
+
+        return count
 
 
 def air_cargo_p1() -> AirCargoProblem:
